@@ -83,7 +83,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
     
     
     @IBAction func save(_ sender: Any) {
-        
+        guard let image = imageView.image else {
+            let ac = UIAlertController(title: "Save error", message: "No image loaded", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+            return
+        }
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
     }
     
     
@@ -115,6 +121,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
         if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) { // creates a new data type called CGImage from the output image of the current filter - specify which part of the image, using image.extent means "all of it" - Until this method is called, no actual processing is done - returns an optional CGImage
             let processedImage = UIImage(cgImage: cgImage) // creates a new UIImage from the CGImage
             imageView.image = processedImage // assigns that UIImage to the image view
+        }
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+        } else {
+            let ac = UIAlertController(title: "Saved!", message: "Your altered image has been saved to your photos.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
         }
     }
     
